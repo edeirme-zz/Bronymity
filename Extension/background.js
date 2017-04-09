@@ -887,10 +887,36 @@ chrome.tabs.query({},function(tabs){
 });
 
 
+
 chrome.webRequest.onBeforeRequest.addListener(
  	maincall,
  	{urls: ["<all_urls>"]},
  	["blocking"]);
+
+/**
+Obfuscate the ETag header. Replace it with a base64 encoded
+random string of 16 characters.
+**/
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  function(details) {
+    for (var i = 0; i < details.requestHeaders.length; ++i) {
+      if (details.requestHeaders[i].name === 'ETag') {
+        charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var randomString = '';
+        for (var j = 0; j < 16; j++) {
+            var position = Math.floor(Math.random() * charSet.length);
+            randomString += charSet.substring(position, position+1);
+        }
+        details.requestHeaders[i].value = btoa(randomString);
+        console.log(details.requestHeaders[i])
+        break;
+      }
+    }
+    return { requestHeaders: details.requestHeaders };
+  },
+  {urls: ['<all_urls>']},
+  [ 'blocking', 'requestHeaders']
+);
 
 
 chrome.fontSettings.getFontList(giefFonts); // Get fonts

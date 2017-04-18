@@ -1,14 +1,13 @@
 {
   "name": "Bronymity",
   "description": "A browser anonymity tool - preventing others from finding out important information about your browser",
-  "version": "0.1",
+  "version": "0.2",
   "background": {
-  //  "scripts": [
-  //   "BigInteger.min.js",
-  //   "md5.min.js",
-  //   "background.js"    
-  // ]
-  "page":"background.html"
+   "scripts": [
+    "BigInteger.min.js",
+    "md5.min.js",
+    "background.js"    
+  ]
   },
   "browser_action": {
       "name": "Click to change the icon's color"
@@ -16,12 +15,15 @@
   },
   "permissions":[
     "tabs",
+    "webNavigation", //?
   	"webRequest",
   	"webRequestBlocking",
   	"<all_urls>",
     "activeTab",
     "fontSettings",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "http://*/*", 
+    "https://*/*"
   ],
   "manifest_version": 2
 }

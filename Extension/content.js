@@ -35,9 +35,29 @@ function main(r, g, b, a, scriptId) {
                 }
             );
         }
+        //looks wrong
+
+        // function overriderWebGLInternal(name, old) {
+        //     Object.defineProperty(root.prototype, name,
+        //         {
+        //             value: function () {
+        //                 //Initialize webgl
+        //                 var context = this.getContext("webgl");
+                        
+        //                 return old.apply(this, arguments);
+        //             }
+        //         }
+        //     );
+        // }
+
         overrideCanvasInternal("toDataURL", root.prototype.toDataURL);
         overrideCanvasInternal("toBlob", root.prototype.toBlob);
         //overrideCanvasInternal("mozGetAsFile", root.prototype.mozGetAsFile);
+        //looks wrongs
+        // overriderWebGLInternal("UNMASKED_VENDOR_WEBGL", 
+        //     root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_VENDOR_WEBGL);
+        // overriderWebGLInternal("UNMASKED_RENDERER_WEBGL", 
+        //     root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL);
     }
     function overrideCanvaRendProto(root) {
         var getImageData = root.prototype.getImageData;
@@ -62,6 +82,25 @@ function main(r, g, b, a, scriptId) {
             }
         );
     }
+    function overrideWebGLRendProto(root) {
+        // What should we override? getExtension?
+        var unmasked_vendor_webgl = root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_VENDOR_WEBGL
+        Object.defineProperty(root.prototype.getExtension("WEBGL_debug_renderer_info"), "UNMASKED_VENDOR_WEBGL",
+            {
+                value: function () {                    
+                    return 37446;
+                }
+            }
+        );
+        var unmasked_renderer_webgl = root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL
+        Object.defineProperty(root.prototype.getExtension("WEBGL_debug_renderer_info"), "UNMASKED_RENDERER_WEBGL",
+            {
+                value: function () {                    
+                    return 37445;
+                }
+            }
+        );
+    }
     function inject(element) {
         if (element.tagName.toUpperCase() === "IFRAME" && element.contentWindow) {
             try {
@@ -72,7 +111,9 @@ function main(r, g, b, a, scriptId) {
             }
             overrideCanvasProto(element.contentWindow.HTMLCanvasElement);
             overrideCanvaRendProto(element.contentWindow.CanvasRenderingContext2D);
-            overrideDocumentProto(element.contentWindow.Document);
+            // let's try this one
+            // overrideCanvaRendProto(element.contentWindow.WebGLRenderingContext);
+            // overrideDocumentProto(element.contentWindow.Document);
         }
     }
     function overrideDocumentProto(root) {
@@ -112,6 +153,7 @@ function main(r, g, b, a, scriptId) {
 
     overrideCanvasProto(HTMLCanvasElement);
     overrideCanvaRendProto(CanvasRenderingContext2D);
+    overrideCanvaRendProto(WebGLRenderingContext);
     overrideDocumentProto(Document);
     scriptNode.parentNode.removeChild(scriptNode);
 }

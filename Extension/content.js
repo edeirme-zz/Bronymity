@@ -15,7 +15,7 @@ function main(r, g, b, a, scriptId) {
         function overrideCanvasInternal(name, old) {
             Object.defineProperty(root.prototype, name,
                 {
-                    value: function () {
+                    value: function() {
                         var width = this.width;
                         var height = this.height;
                         var context = this.getContext("2d");
@@ -82,25 +82,25 @@ function main(r, g, b, a, scriptId) {
             }
         );
     }
-    function overrideWebGLRendProto(root) {
-        // What should we override? getExtension?
-        var unmasked_vendor_webgl = root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_VENDOR_WEBGL
-        Object.defineProperty(root.prototype.getExtension("WEBGL_debug_renderer_info"), "UNMASKED_VENDOR_WEBGL",
-            {
-                value: function () {                    
-                    return 37446;
-                }
-            }
-        );
-        var unmasked_renderer_webgl = root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL
-        Object.defineProperty(root.prototype.getExtension("WEBGL_debug_renderer_info"), "UNMASKED_RENDERER_WEBGL",
-            {
-                value: function () {                    
-                    return 37445;
-                }
-            }
-        );
-    }
+    // function overrideWebGLRendProto(root) {
+    //     // What should we override? getExtension?
+    //     var unmasked_vendor_webgl = root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_VENDOR_WEBGL
+    //     Object.defineProperty(root.prototype.getExtension("WEBGL_debug_renderer_info"), "UNMASKED_VENDOR_WEBGL",
+    //         {
+    //             value: function () {                    
+    //                 return 37446;
+    //             }
+    //         }
+    //     );
+    //     var unmasked_renderer_webgl = root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL
+    //     Object.defineProperty(root.prototype.getExtension("WEBGL_debug_renderer_info"), "UNMASKED_RENDERER_WEBGL",
+    //         {
+    //             value: function () {                    
+    //                 return 37445;
+    //             }
+    //         }
+    //     );
+    // }
     function inject(element) {
         if (element.tagName.toUpperCase() === "IFRAME" && element.contentWindow) {
             try {
@@ -112,8 +112,8 @@ function main(r, g, b, a, scriptId) {
             overrideCanvasProto(element.contentWindow.HTMLCanvasElement);
             overrideCanvaRendProto(element.contentWindow.CanvasRenderingContext2D);
             // let's try this one
-            // overrideCanvaRendProto(element.contentWindow.WebGLRenderingContext);
-            // overrideDocumentProto(element.contentWindow.Document);
+            overrideCanvaRendProto(element.contentWindow.WebGLRenderingContext);
+            overrideDocumentProto(element.contentWindow.Document);
         }
     }
     function overrideDocumentProto(root) {
@@ -153,7 +153,6 @@ function main(r, g, b, a, scriptId) {
 
     overrideCanvasProto(HTMLCanvasElement);
     overrideCanvaRendProto(CanvasRenderingContext2D);
-    overrideCanvaRendProto(WebGLRenderingContext);
     overrideDocumentProto(Document);
     scriptNode.parentNode.removeChild(scriptNode);
 }
@@ -169,6 +168,51 @@ if (allowInjection) {
         node[docId] = getRandomString();
     }
 }
+
+function webgl_main(scriptId) {
+    var scriptNode = document.getElementById(scriptId);
+
+
+    function overrideWebGLRendProto(root) {
+        var getParameter = root.prototype.getParameter;
+        Object.defineProperty(root.prototype, "getParameter",
+            {
+                value: function () {
+                    if (arguments[0] == '37446' ||
+                        arguments[0] == '37445'){
+                        return "NOT NVIDIA";
+                    }
+                    else {
+                        return getParameter.apply(this, arguments);
+                    }
+                }
+            }
+        );
+    }
+
+    // We need to initialize webgl here
+    //overrideCanvasProto(HTMLCanvasElement);
+    overrideWebGLRendProto(WebGLRenderingContext);
+    scriptNode.parentNode.removeChild(scriptNode);
+    
+}
+// Let's try tampering with webgl
+
+var webgl_script = document.createElement('script');
+webgl_script.id = getRandomString();
+webgl_script.type = "text/javascript";
+if (allowInjection) {
+    var newChild = document.createTextNode('try{(' + webgl_main + ')(' + webgl_script.id + '");} catch (e) {console.error(e);}');
+    webgl_script.appendChild(newChild);
+    var node = (document.documentElement || document.head || document.body);
+    if (typeof node[docId] === 'undefined') {
+        node.insertBefore(webgl_script, node.firstChild);
+        node[docId] = getRandomString();
+    }
+}
+
+// End webgl tampering
+
 function getRandomString() {
     var text = "";
     var charset = "abcdefghijklmnopqrstuvwxyz";

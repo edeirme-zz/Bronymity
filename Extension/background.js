@@ -131,20 +131,21 @@ getLocalIPs(function(temp_ips) {
 });
 
 function maincall(details) {  
-  
+
+  // In order to override the WebGL object we need to do it before js files are called.
+  // Dunno why, don't ask me.
+  // We accept tabId greater than 0. Values below zero originate from extensions.
   if(details && details.tabId >= 0 &&
       details.method === 'GET' &&
-      details.type === 'main_frame'){// tabId=-1 is a call from an extension
-    
+      (details.type === 'main_frame' || details.type === "script" )){
+
+ 
   chrome.tabs.getSelected(null,currentTab);  
-  
-  
   chrome.windows.getLastFocused(null, WindowInfo);
-  sendRequest();  
+  sendRequest(details);  
 
   //   return {cancel:true};
-  }
-
+  } 
 }
 
 
@@ -745,12 +746,30 @@ function request_new_profile(profile){
           // Resetting the window name
           window.name = ""
 
+          // The WebGL snippet works if added somewhere inside the call_remote_server
+          // or the sendRequest, maincall functions. It isn't tested if it will work at the server response.
+          // WebGL section start
+          var docId = getRandomString();
+          var docId2 = getRandomString();
+          generate_canvas_fp();
+          chrome.tabs.executeScript(details.tabId, {
+            code: "var docId='" + docId +"';var docId2='" + docId2 + "';var r=" + data.r + "';var g=" + data.g + ";var b=" + data.b + ";var a=" + data.a + ";",
+            runAt: "document_start",
+            allFrames: true,
+            matchAboutBlank: true
+          });
+          chrome.tabs.executeScript(details.tabId, {
+              file: "content.js",
+              runAt: "document_start",
+              allFrames: true,
+              matchAboutBlank: true
+          });  
+          // WebGL section end
 
           console.log("Initiating font call to local server");
 
           target_fonts = received_data.fonts;
           sendtoflask();
-
 
         }
       }
@@ -761,7 +780,7 @@ function request_new_profile(profile){
 }
 
 
-function call_remote_server(open_ports){  
+function call_remote_server(open_ports, details){  
       var xhr = new XMLHttpRequest();
       var url = URL;
       xhr.open("POST", url, true);
@@ -801,6 +820,7 @@ function call_remote_server(open_ports){
         }        
       };
 
+
       rs_array = dump_enc_profile();
       
       /*
@@ -820,7 +840,10 @@ function call_remote_server(open_ports){
       xhr.send(enc_data_final);
 }
 
-function sendRequest(){
+function sendRequest(details){
+
+
+
   chrome.tabs.getSelected(null,function(tab) {
     tablink = parseURL(tab.url);
     
@@ -831,8 +854,8 @@ function sendRequest(){
       if( temp_tab.hostname === 'google.com' || temp_tab.hostname === 'www.google.gr' || temp_tab.hostname === 'www.google.com')
         flag = 1;
     };
-    
-    if (!flag){ //if flag = 0 meaning that the url google.com is not opened already
+    //if flag = 0 means that the url google.com is not opened already
+    if (!flag){ 
       start = performance.now();
       // var xhr_ports = new XMLHttpRequest();
       // var url_ports = "http://localhost:5000/ports";
@@ -851,7 +874,7 @@ function sendRequest(){
       open_ports = 0;
       //get_remote_server_pk();
       // generate_canvas_fp();
-      call_remote_server(open_ports);
+      call_remote_server(open_ports, details);
      
     }
     should_block = false;
@@ -928,24 +951,25 @@ function WindowInfo(e){
 
 
 //-============CANVAS Defender snippet ==========/
-var docId = getRandomString();
-generate_canvas_fp();
+// var docId = getRandomString();
+//       var docId2 = getRandomString();
+//       generate_canvas_fp();
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-    chrome.tabs.executeScript(tabId, {
-        code: "var docId='" + docId + "';var r=" + data.r + ";var g=" + data.g + ";var b=" + data.b + ";var a=" + data.a + ";",
-        runAt: "document_start",
-        allFrames: true,
-        matchAboutBlank: true
-    });
-    chrome.tabs.executeScript(tabId, {
-        file: "content.js",
-        runAt: "document_start",
-        allFrames: true,
-        matchAboutBlank: true
-    });
-    //console.log("r" + data.r + "g" + data.g + "b" + data.b + "a" + data.a);
-});
+// chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+//     chrome.tabs.executeScript(tabId, {
+//         code: "var docId='" + docId +"';var docId2='" + docId2 + "';var r=" + data.r + ";var g=" + data.g + ";var b=" + data.b + ";var a=" + data.a + ";",
+//         runAt: "document_start",
+//         allFrames: true,
+//         matchAboutBlank: true
+//     });
+//     chrome.tabs.executeScript(tabId, {
+//         file: "content.js",
+//         runAt: "document_start",
+//         allFrames: true,
+//         matchAboutBlank: true
+//     });
+//     //console.log("r" + data.r + "g" + data.g + "b" + data.b + "a" + data.a);
+// });
 
 function generate_canvas_fp(){
     data = {};

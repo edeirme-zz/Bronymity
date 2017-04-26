@@ -8,7 +8,6 @@ if (window.frameElement != null && window.frameElement.sandbox != null) {
         }
     }
 }
-
 function main(r, g, b, a, scriptId) {
     var scriptNode = document.getElementById(scriptId);
     function overrideCanvasProto(root) {
@@ -35,29 +34,9 @@ function main(r, g, b, a, scriptId) {
                 }
             );
         }
-        //looks wrong
-
-        // function overriderWebGLInternal(name, old) {
-        //     Object.defineProperty(root.prototype, name,
-        //         {
-        //             value: function () {
-        //                 //Initialize webgl
-        //                 var context = this.getContext("webgl");
-                        
-        //                 return old.apply(this, arguments);
-        //             }
-        //         }
-        //     );
-        // }
-
+     
         overrideCanvasInternal("toDataURL", root.prototype.toDataURL);
         overrideCanvasInternal("toBlob", root.prototype.toBlob);
-        //overrideCanvasInternal("mozGetAsFile", root.prototype.mozGetAsFile);
-        //looks wrongs
-        // overriderWebGLInternal("UNMASKED_VENDOR_WEBGL", 
-        //     root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_VENDOR_WEBGL);
-        // overriderWebGLInternal("UNMASKED_RENDERER_WEBGL", 
-        //     root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL);
     }
     function overrideCanvaRendProto(root) {
         var getImageData = root.prototype.getImageData;
@@ -82,25 +61,7 @@ function main(r, g, b, a, scriptId) {
             }
         );
     }
-    // function overrideWebGLRendProto(root) {
-    //     // What should we override? getExtension?
-    //     var unmasked_vendor_webgl = root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_VENDOR_WEBGL
-    //     Object.defineProperty(root.prototype.getExtension("WEBGL_debug_renderer_info"), "UNMASKED_VENDOR_WEBGL",
-    //         {
-    //             value: function () {                    
-    //                 return 37446;
-    //             }
-    //         }
-    //     );
-    //     var unmasked_renderer_webgl = root.prototype.getExtension("WEBGL_debug_renderer_info").UNMASKED_RENDERER_WEBGL
-    //     Object.defineProperty(root.prototype.getExtension("WEBGL_debug_renderer_info"), "UNMASKED_RENDERER_WEBGL",
-    //         {
-    //             value: function () {                    
-    //                 return 37445;
-    //             }
-    //         }
-    //     );
-    // }
+   
     function inject(element) {
         if (element.tagName.toUpperCase() === "IFRAME" && element.contentWindow) {
             try {
@@ -171,8 +132,8 @@ if (allowInjection) {
 
 function webgl_main(scriptId) {
     var scriptNode = document.getElementById(scriptId);
-
-
+    console.log("asd")
+    
     function overrideWebGLRendProto(root) {
         var getParameter = root.prototype.getParameter;
         Object.defineProperty(root.prototype, "getParameter",
@@ -190,28 +151,28 @@ function webgl_main(scriptId) {
         );
     }
 
-    // We need to initialize webgl here
-    //overrideCanvasProto(HTMLCanvasElement);
     overrideWebGLRendProto(WebGLRenderingContext);
     scriptNode.parentNode.removeChild(scriptNode);
     
 }
-// Let's try tampering with webgl
 
+// WebGL tampering
 var webgl_script = document.createElement('script');
 webgl_script.id = getRandomString();
 webgl_script.type = "text/javascript";
+
 if (allowInjection) {
-    var newChild = document.createTextNode('try{(' + webgl_main + ')(' + webgl_script.id + '");} catch (e) {console.error(e);}');
+    console.log("boo")
+    var newChild = document.createTextNode('try{(' + webgl_main + ')("' + webgl_script.id + '");} catch (e) {console.error(e);}');
     webgl_script.appendChild(newChild);
     var node = (document.documentElement || document.head || document.body);
-    if (typeof node[docId] === 'undefined') {
+    if (typeof node[docId2] === 'undefined') {
         node.insertBefore(webgl_script, node.firstChild);
-        node[docId] = getRandomString();
+        node[docId2] = getRandomString();
     }
 }
 
-// End webgl tampering
+// End WebGL tampering
 
 function getRandomString() {
     var text = "";

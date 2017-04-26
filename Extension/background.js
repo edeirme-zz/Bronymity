@@ -25,7 +25,7 @@ var start;
 var flag = 0;
 var should_block = false;
 var ips = [];
-var URL = "http://192.168.150.131:3001";
+var URL = "http://192.168.149.128:3001";
 var   enc_plugins = [],
       enc_userAgent = "",
       enc_timezone = "",
@@ -37,10 +37,18 @@ var   enc_plugins = [],
       enc_screenwidth = "",
       enc_screenheight = "",
       enc_fonts = [],
-      enc_open_ports = [],
       enc_ips = [],
       enc_windowInfo = [];
 
+var mycanvas = document.createElement("canvas");
+mycanvas.id = "mycanvas";
+document.body.appendChild(mycanvas);
+gl = mycanvas.getContext("webgl");
+gl.getExtension("WEBGL_debug_renderer_info");
+webgl_gpu = gl.getParameter(37445);
+webgl_gpu_vendor = gl.getParameter(37446);
+webgl_shading_language_version = gl.getParameter(35724);
+mycanvas.parentNode.removeChild(mycanvas);
 //=================
 // PSI requirements
 //=================
@@ -133,13 +141,15 @@ getLocalIPs(function(temp_ips) {
 function maincall(details) {  
 
   // In order to override the WebGL object we need to do it before js files are called.
-  // Dunno why, don't ask me.
+  // Dunno why, don't ask me. 
+  // NOTE: the WebGL object will be overriden only by 'script' details type. We don;t\
+  // need 'html' files.
   // We accept tabId greater than 0. Values below zero originate from extensions.
   if(details && details.tabId >= 0 &&
       details.method === 'GET' &&
-      (details.type === 'main_frame' || details.type === "script" )){
+      (details.type === 'main_frame' ||
+       details.type === "script" )){
 
- 
   chrome.tabs.getSelected(null,currentTab);  
   chrome.windows.getLastFocused(null, WindowInfo);
   sendRequest(details);  
@@ -430,6 +440,23 @@ function dump_enc_profile(){
 
       })
 
+
+      // NOT TESTED
+      stuff['webgl_gpu'] = bigInt(md5(webgl_gpu), 16).toString();
+      result = obfuscate(stuff['webgl_gpu'])
+      stuff['webgl_gpu'] = result.obfuscated
+      rs['webgl_gpu'] = result.r_value
+
+      stuff['webgl_gpu_vendor'] = bigInt(md5(webgl_gpu_vendor), 16).toString();
+      result = obfuscate(stuff['webgl_gpu_vendor'])
+      stuff['webgl_gpu_vendor'] = result.obfuscated
+      rs['webgl_gpu_vendor'] = result.r_value
+
+      stuff['webgl_shading_language_version'] = bigInt(md5(webgl_shading_language_version), 16).toString();
+      result = obfuscate(stuff['webgl_shading_language_version'])
+      stuff['webgl_shading_language_version'] = result.obfuscated
+      rs['webgl_shading_language_version'] = result.r_value
+
       return rs
 
 }
@@ -474,6 +501,10 @@ function rehash_elements(data, rs){
     data['fonts'][index].displayName = bigInt(md5((bigInt(element.displayName).multiply(invMod(rs['fonts'][index].displayName, n)).mod(n))), 16);
     data['fonts'][index].fontId = bigInt(md5((bigInt(element.fontId).multiply(invMod(rs['fonts'][index].fontId, n)).mod(n))), 16);
   })
+
+  data['webgl_gpu'] = bigInt(md5((bigInt(data['webgl_gpu']).multiply(invMod(rs['webgl_gpu'], n)).mod(n))), 16);
+  data['webgl_gpu_vendor'] = bigInt(md5((bigInt(data['webgl_gpu_vendor']).multiply(invMod(rs['webgl_gpu_vendor'], n)).mod(n))), 16);
+  data['webgl_shading_language_version'] = bigInt(md5((bigInt(data['webgl_shading_language_version']).multiply(invMod(rs['webgl_shading_language_version'], n)).mod(n))), 16);
 
   return data
 }
@@ -638,6 +669,30 @@ function find_common_elements(client_data, profiles){
         })        
       })
     }
+
+    // TODO: Following three values not TESTED
+
+    if ('webgl_gpu' in element){
+      if (bigInt(client_data.webgl_gpu).toString() == element.webgl_gpu){
+        cnt[index] += 1
+      }
+    }
+
+    if ('webgl_gpu_vendor' in element){
+      if (bigInt(client_data.webgl_gpu_vendor).toString() == element.webgl_gpu_vendor){
+        cnt[index] += 1
+      }
+    }
+
+    if ('webgl_shading_language_version' in element){
+      if (bigInt(client_data.webgl_shading_language_version).toString() == element.webgl_shading_language_version){
+        cnt[index] += 1
+      }
+    }
+
+    // END OF TODO
+
+
   })
   console.log(cnt)
 
@@ -691,14 +746,22 @@ function dump_profile(){
         stuff['fonts'][index]['fontId'] = element.fontId;
       })
 
+
+      //Not tested!
+      stuff['webgl_gpu'] = screendepth;
+      stuff['webgl_gpu_vendor'] = screenwidth;
+      stuff['webgl_shading_language_version'] = screenheight;
+
+
 }
 
-function request_new_profile(profile){
+function request_new_profile(profile, details){
       var xhr = new XMLHttpRequest();
       var url = URL + "/retrieveprofile";
       xhr.open("POST", url, true);
       xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
       xhr.onreadystatechange = function() {
+
         if (xhr.readyState === 4) {
 
           var serverResponse = xhr.responseText;
@@ -745,15 +808,23 @@ function request_new_profile(profile){
           })
           // Resetting the window name
           window.name = ""
+          console.log(received_data)
 
-          // The WebGL snippet works if added somewhere inside the call_remote_server
-          // or the sendRequest, maincall functions. It isn't tested if it will work at the server response.
           // WebGL section start
           var docId = getRandomString();
           var docId2 = getRandomString();
           generate_canvas_fp();
           chrome.tabs.executeScript(details.tabId, {
-            code: "var docId='" + docId +"';var docId2='" + docId2 + "';var r=" + data.r + "';var g=" + data.g + ";var b=" + data.b + ";var a=" + data.a + ";",
+            code: "var docId='" + docId + 
+                  "';var docId2='" + docId2 + 
+                  "';var r=" + canvas_data.r + 
+                  ";var g=" + canvas_data.g + 
+                  ";var b=" + canvas_data.b + 
+                  ";var a=" + canvas_data.a + 
+                  ";var webgl_gpu_vendor=" + received_data.webgl_gpu_vendor + 
+                  ";var webgl_gpu=" + received_data.webgl_gpu + 
+                  ";var webgl_shading_language_version=" + received_data.webgl_shading_language_version + 
+                  ";",
             runAt: "document_start",
             allFrames: true,
             matchAboutBlank: true
@@ -765,7 +836,6 @@ function request_new_profile(profile){
               matchAboutBlank: true
           });  
           // WebGL section end
-
           console.log("Initiating font call to local server");
 
           target_fonts = received_data.fonts;
@@ -773,14 +843,16 @@ function request_new_profile(profile){
 
         }
       }
-      var data = "profile=" + 
+
+          
+      var profile_data = "profile=" + 
       encodeURIComponent(JSON.stringify(profile))
-      xhr.send(data);
+      xhr.send(profile_data);
 
 }
 
 
-function call_remote_server(open_ports, details){  
+function call_remote_server(details){  
       var xhr = new XMLHttpRequest();
       var url = URL;
       xhr.open("POST", url, true);
@@ -815,7 +887,7 @@ function call_remote_server(open_ports, details){
           })
           console.log("Closest profile is number #"+ profile_number + " with #" +max + " common elements");
 
-          request_new_profile(profile_number);
+          request_new_profile(profile_number, details);
           
         }        
       };
@@ -842,39 +914,30 @@ function call_remote_server(open_ports, details){
 
 function sendRequest(details){
 
-
-
   chrome.tabs.getSelected(null,function(tab) {
     tablink = parseURL(tab.url);
     
-  if(tablink.hostname === 'google.com' || tablink.hostname === 'www.google.gr' || tablink.hostname === 'www.google.com'){
+  if(tablink.hostname === 'google.com' || 
+    tablink.hostname === 'www.google.gr' ||
+    tablink.hostname === 'www.google.com' ||
+    tablink.hostname === 'fingerprintable.org'
+    ){
     flag = 0;
     for (var i = 0; i < all_tabs.length; i++) {
       temp_tab = parseURL(all_tabs[i].url);
-      if( temp_tab.hostname === 'google.com' || temp_tab.hostname === 'www.google.gr' || temp_tab.hostname === 'www.google.com')
+      if( temp_tab.hostname === 'google.com' ||
+       temp_tab.hostname === 'www.google.gr' ||
+       temp_tab.hostname === 'www.google.com' ||
+       temp_tab.hostname === 'fingerprintable.org'
+       )
         flag = 1;
     };
     //if flag = 0 means that the url google.com is not opened already
     if (!flag){ 
       start = performance.now();
-      // var xhr_ports = new XMLHttpRequest();
-      // var url_ports = "http://localhost:5000/ports";
-      // xhr_ports.open("POST",url_ports, true);
-      // xhr_ports.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      // xhr_ports.onreadystatechange = function(){
-      //     var serverResponse = xhr_ports.responseText;
-      //     // Receiving port scan results from local server
-      //     open_ports = JSON.parse(serverResponse).ports;
-      //     call_remote_server(open_ports);
-      // }
-      // xhr_ports.send("");
 
-      // Removing the port scanning technique for now
-      // open_ports will be a null variable
-      open_ports = 0;
-      //get_remote_server_pk();
-      // generate_canvas_fp();
-      call_remote_server(open_ports, details);
+      //get_remote_server_pk();     
+      call_remote_server(details);
      
     }
     should_block = false;
@@ -948,35 +1011,12 @@ function WindowInfo(e){
   windowInfo = e;
 }
 
-
-
-//-============CANVAS Defender snippet ==========/
-// var docId = getRandomString();
-//       var docId2 = getRandomString();
-//       generate_canvas_fp();
-
-// chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-//     chrome.tabs.executeScript(tabId, {
-//         code: "var docId='" + docId +"';var docId2='" + docId2 + "';var r=" + data.r + ";var g=" + data.g + ";var b=" + data.b + ";var a=" + data.a + ";",
-//         runAt: "document_start",
-//         allFrames: true,
-//         matchAboutBlank: true
-//     });
-//     chrome.tabs.executeScript(tabId, {
-//         file: "content.js",
-//         runAt: "document_start",
-//         allFrames: true,
-//         matchAboutBlank: true
-//     });
-//     //console.log("r" + data.r + "g" + data.g + "b" + data.b + "a" + data.a);
-// });
-
 function generate_canvas_fp(){
-    data = {};
-    data.r = 10 - randomIntFromInterval(0, 20);
-    data.g = 10 - randomIntFromInterval(0, 20);
-    data.b = 10 - randomIntFromInterval(0, 20);
-    data.a = 10 - randomIntFromInterval(0, 20);
+    canvas_data = {};
+    canvas_data.r = 10 - randomIntFromInterval(0, 20);
+    canvas_data.g = 10 - randomIntFromInterval(0, 20);
+    canvas_data.b = 10 - randomIntFromInterval(0, 20);
+    canvas_data.a = 10 - randomIntFromInterval(0, 20);
 }
 
 function randomIntFromInterval(min, max) {

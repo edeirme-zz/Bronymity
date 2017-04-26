@@ -139,9 +139,17 @@ function webgl_main(scriptId) {
         Object.defineProperty(root.prototype, "getParameter",
             {
                 value: function () {
-                    if (arguments[0] == '37446' ||
-                        arguments[0] == '37445'){
-                        return "NOT NVIDIA";
+                    // gpu => 37446 = UNMASKED_RENDERER_WEBGL
+                    if (arguments[0] == '37446'){
+                        return webgl_gpu_vendor;
+                    }
+                    // vendor => 37445 = UNMASKED_VENDOR_WEBGL
+                    else if (arguments[0] === '37445'){
+                        return webgl_gpu;
+                    }
+                    // 35725 == "SHADING_LANGUAGE_VERSION"
+                    else if (arguments[0] === '35724'){
+                        return webgl_shading_language_version;
                     }
                     else {
                         return getParameter.apply(this, arguments);

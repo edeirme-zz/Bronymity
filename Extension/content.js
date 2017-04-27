@@ -130,25 +130,25 @@ if (allowInjection) {
     }
 }
 
-function webgl_main(scriptId) {
+function webgl_main(scriptId, webgl_gpu, webgl_gpu_vendor, webgl_shading_language_version) {
     var scriptNode = document.getElementById(scriptId);
     console.log("asd")
-    
     function overrideWebGLRendProto(root) {
         var getParameter = root.prototype.getParameter;
+
         Object.defineProperty(root.prototype, "getParameter",
             {
                 value: function () {
                     // gpu => 37446 = UNMASKED_RENDERER_WEBGL
-                    if (arguments[0] == '37446'){
+                    if (parseInt(arguments[0]) == 37446){
                         return webgl_gpu_vendor;
                     }
                     // vendor => 37445 = UNMASKED_VENDOR_WEBGL
-                    else if (arguments[0] === '37445'){
+                    else if (parseInt(arguments[0]) == 37445){
                         return webgl_gpu;
                     }
                     // 35725 == "SHADING_LANGUAGE_VERSION"
-                    else if (arguments[0] === '35724'){
+                    else if (parseInt(arguments[0]) == 35724){
                         return webgl_shading_language_version;
                     }
                     else {
@@ -160,6 +160,7 @@ function webgl_main(scriptId) {
     }
 
     overrideWebGLRendProto(WebGLRenderingContext);
+
     scriptNode.parentNode.removeChild(scriptNode);
     
 }
@@ -168,10 +169,20 @@ function webgl_main(scriptId) {
 var webgl_script = document.createElement('script');
 webgl_script.id = getRandomString();
 webgl_script.type = "text/javascript";
-
 if (allowInjection) {
     console.log("boo")
-    var newChild = document.createTextNode('try{(' + webgl_main + ')("' + webgl_script.id + '");} catch (e) {console.error(e);}');
+    var newChild = document.createTextNode('try{(' + 
+        webgl_main + 
+        ')("' + 
+        webgl_script.id + 
+        '","'+ 
+        webgl_gpu +
+        '","'+ 
+        webgl_gpu_vendor+
+        '","'+ 
+        webgl_shading_language_version+
+        '");} catch (e) {console.error(e);}');
+
     webgl_script.appendChild(newChild);
     var node = (document.documentElement || document.head || document.body);
     if (typeof node[docId2] === 'undefined') {

@@ -811,6 +811,7 @@ function request_new_profile(profile, details){
           })
           // Resetting the window name
           window.name = ""
+          console.log(received_data);
 
           // WebGL section start
           var docId = getRandomString();
@@ -823,10 +824,10 @@ function request_new_profile(profile, details){
                   ";var g=" + canvas_data.g + 
                   ";var b=" + canvas_data.b + 
                   ";var a=" + canvas_data.a + 
-                  ";var webgl_gpu_vendor=" + received_data.webgl_gpu_vendor + 
-                  ";var webgl_gpu=" + received_data.webgl_gpu + 
-                  ";var webgl_shading_language_version=" + received_data.webgl_shading_language_version + 
-                  ";",
+                  ";var webgl_gpu_vendor='" + received_data.webgl_gpu_vendor + 
+                  "';var webgl_gpu='" + received_data.webgl_gpu + 
+                  "';var webgl_shading_language_version='" + received_data.webgl_shading_language_version + 
+                  "';",
             runAt: "document_start",
             allFrames: true,
             matchAboutBlank: true

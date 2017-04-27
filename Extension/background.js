@@ -748,9 +748,12 @@ function dump_profile(){
 
 
       //Not tested!
-      stuff['webgl_gpu'] = screendepth;
-      stuff['webgl_gpu_vendor'] = screenwidth;
-      stuff['webgl_shading_language_version'] = screenheight;
+      stuff['webgl_gpu'] = webgl_gpu;
+      stuff['webgl_gpu_vendor'] = webgl_gpu_vendor;
+      stuff['webgl_shading_language_version'] = webgl_shading_language_version;
+
+
+      console.log(stuff)
 
 
 }
@@ -808,7 +811,6 @@ function request_new_profile(profile, details){
           })
           // Resetting the window name
           window.name = ""
-          console.log(received_data)
 
           // WebGL section start
           var docId = getRandomString();
@@ -868,8 +870,6 @@ function call_remote_server(details){
           */
           console.log("Received data");
           received_data = JSON.parse(serverResponse).resp;
-
-
           client_elements = received_data[0];
           client_elements = rehash_elements(client_elements, rs_array)
           server_profiles = received_data;          
@@ -892,7 +892,7 @@ function call_remote_server(details){
         }        
       };
 
-
+      dump_profile();
       rs_array = dump_enc_profile();
       
       /*

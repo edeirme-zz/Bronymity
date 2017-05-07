@@ -25,6 +25,16 @@ def getpk():
   n=int(n.strip())
   return n
 
+@app.route('/uploadProfile', methods=['POST'])
+def uploadprofile():
+  try:
+    f = open('profiles', 'a')
+    f.write(request.form.get('profile'))
+    f.close
+    return "OK"
+  except Exception as e:
+    return "404"
+
 
 @app.route('/retrieveprofile', methods=['POST'])
 def retrieveprofile():

@@ -700,6 +700,24 @@ function find_common_elements(client_data, profiles){
 }
 
 
+function uploadProfile(){
+  profile = dump_profile();
+  var xhr = new XMLHttpRequest();
+  var url = URL + "/uploadProfile";
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      var serverResponse = xhr.responseText;
+      console.log("Received data");
+      notifyUser("Profile has been Uploaded!");
+    }else {
+      notifyUser("Profile upload failed!");
+    }        
+  };
+  xhr.send(JSON.stringify(profile));
+}
 
 function dump_profile(){
 
@@ -752,8 +770,8 @@ function dump_profile(){
       stuff['webgl_gpu_vendor'] = webgl_gpu_vendor;
       stuff['webgl_shading_language_version'] = webgl_shading_language_version;
 
-
-      console.log(stuff)
+      return stuff
+      // console.log(stuff)
 
 
 }
@@ -1032,3 +1050,22 @@ function getRandomString() {
     return text;
 }
 //-============CANVAS==========/
+
+
+chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
+   if (request.action === "upload-profile") {
+        uploadProfile();
+    } 
+});
+
+function notifyUser(message) {
+    var options = {
+        type: "basic",
+        title: "Upload profile status",
+        message: message,
+        iconUrl: "img/img.png"
+    }
+
+    chrome.notifications.create(options, function (notificationId) {
+    });
+}

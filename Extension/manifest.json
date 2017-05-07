@@ -10,14 +10,15 @@
   ]
   },
   "browser_action": {
-      "name": "Click to change the icon's color"
-
+      "default_title": "Bronymity",     
+      "default_popup": "html/panel.html"
   },
   "permissions":[
     "tabs",
     "webNavigation", //?
   	"webRequest",
   	"webRequestBlocking",
+    "notifications",
   	"<all_urls>",
     "activeTab",
     "fontSettings",

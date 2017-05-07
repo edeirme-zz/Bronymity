@@ -25,7 +25,7 @@ var start;
 var flag = 0;
 var should_block = false;
 var ips = [];
-var URL = "http://192.168.149.128:3001";
+var URL = "http://192.168.150.133:3001";
 var   enc_plugins = [],
       enc_userAgent = "",
       enc_timezone = "",
@@ -145,19 +145,27 @@ function maincall(details) {
   // NOTE: the WebGL object will be overriden only by 'script' details type. We don;t\
   // need 'html' files.
   // We accept tabId greater than 0. Values below zero originate from extensions.
-  if(details && details.tabId >= 0 &&
-      details.method === 'GET' &&
-      (details.type === 'main_frame' ||
-       details.type === "script" )){
-
+  // if(details && details.tabId >= 0 &&
+  //     details.method === 'GET' &&
+  //     (details.type === 'main_frame' ||
+  //      details.type === "script" )){
+  console.log("asdf")
+  sendRequest(details);  
   chrome.tabs.getSelected(null,currentTab);  
   chrome.windows.getLastFocused(null, WindowInfo);
-  sendRequest(details);  
+  
 
   //   return {cancel:true};
-  } 
+  // } 
 }
 
+function initialize_bronymity(details){  
+  start = performance.now(); 
+  chrome.tabs.getSelected(null,currentTab);  
+  chrome.windows.getLastFocused(null, WindowInfo);  
+  chrome.fontSettings.getFontList(giefFonts);
+  call_remote_server(details);  
+}
 
 function getLocalIPs(callback) {
 
@@ -277,57 +285,57 @@ function dump_enc_profile(){
 
       stuff = {}
       var rs = {}
-      stuff['windowInfo'] = {}
-      rs['windowInfo'] = {}
+      // stuff['windowInfo'] = {}
+      // rs['windowInfo'] = {}
 
-      stuff['windowInfo']['alwaysOnTop'] = (bigInt(md5(windowInfo.alwaysOnTop), 16)).toString();
+      // stuff['windowInfo']['alwaysOnTop'] = (bigInt(md5(windowInfo.alwaysOnTop), 16)).toString();
 
-      stuff['windowInfo']['focused'] = bigInt(md5(windowInfo.focused), 16).toString();
-      stuff['windowInfo']['height'] = bigInt(md5(windowInfo.height), 16).toString();
-      stuff['windowInfo']['incognito'] = bigInt(md5(windowInfo.incognito), 16).toString();
-      stuff['windowInfo']['left'] = bigInt(md5(windowInfo.left), 16).toString();
-      stuff['windowInfo']['state'] = bigInt(md5(windowInfo.state), 16).toString();
-      stuff['windowInfo']['top'] = bigInt(md5(windowInfo.top), 16).toString();
-      stuff['windowInfo']['type'] = bigInt(md5(windowInfo.type), 16).toString();
-      stuff['windowInfo']['width'] = bigInt(md5(windowInfo.width), 16).toString();
+      // stuff['windowInfo']['focused'] = bigInt(md5(windowInfo.focused), 16).toString();
+      // stuff['windowInfo']['height'] = bigInt(md5(windowInfo.height), 16).toString();
+      // stuff['windowInfo']['incognito'] = bigInt(md5(windowInfo.incognito), 16).toString();
+      // stuff['windowInfo']['left'] = bigInt(md5(windowInfo.left), 16).toString();
+      // stuff['windowInfo']['state'] = bigInt(md5(windowInfo.state), 16).toString();
+      // stuff['windowInfo']['top'] = bigInt(md5(windowInfo.top), 16).toString();
+      // stuff['windowInfo']['type'] = bigInt(md5(windowInfo.type), 16).toString();
+      // stuff['windowInfo']['width'] = bigInt(md5(windowInfo.width), 16).toString();
 
 
-      result = obfuscate(stuff['windowInfo']['alwaysOnTop'])
-      stuff['windowInfo']['alwaysOnTop'] = result.obfuscated
-      rs['windowInfo']['alwaysOnTop'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['alwaysOnTop'])
+      // stuff['windowInfo']['alwaysOnTop'] = result.obfuscated
+      // rs['windowInfo']['alwaysOnTop'] = result.r_value
       
 
-      result = obfuscate(stuff['windowInfo']['focused'])
-      stuff['windowInfo']['focused'] = result.obfuscated
-      rs['windowInfo']['focused'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['focused'])
+      // stuff['windowInfo']['focused'] = result.obfuscated
+      // rs['windowInfo']['focused'] = result.r_value
 
-      result = obfuscate(stuff['windowInfo']['height'])
-      stuff['windowInfo']['height'] = result.obfuscated
-      rs['windowInfo']['height'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['height'])
+      // stuff['windowInfo']['height'] = result.obfuscated
+      // rs['windowInfo']['height'] = result.r_value
 
-      result = obfuscate(stuff['windowInfo']['incognito'])
-      stuff['windowInfo']['incognito'] = result.obfuscated
-      rs['windowInfo']['incognito'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['incognito'])
+      // stuff['windowInfo']['incognito'] = result.obfuscated
+      // rs['windowInfo']['incognito'] = result.r_value
 
-      result = obfuscate(stuff['windowInfo']['left'])
-      stuff['windowInfo']['left'] = result.obfuscated
-      rs['windowInfo']['left'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['left'])
+      // stuff['windowInfo']['left'] = result.obfuscated
+      // rs['windowInfo']['left'] = result.r_value
 
-      result = obfuscate(stuff['windowInfo']['state'])
-      stuff['windowInfo']['state'] = result.obfuscated
-      rs['windowInfo']['state'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['state'])
+      // stuff['windowInfo']['state'] = result.obfuscated
+      // rs['windowInfo']['state'] = result.r_value
 
-      result = obfuscate(stuff['windowInfo']['top'])
-      stuff['windowInfo']['top'] = result.obfuscated
-      rs['windowInfo']['top'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['top'])
+      // stuff['windowInfo']['top'] = result.obfuscated
+      // rs['windowInfo']['top'] = result.r_value
 
-      result = obfuscate(stuff['windowInfo']['type'])
-      stuff['windowInfo']['type'] = result.obfuscated
-      rs['windowInfo']['type'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['type'])
+      // stuff['windowInfo']['type'] = result.obfuscated
+      // rs['windowInfo']['type'] = result.r_value
 
-      result = obfuscate(stuff['windowInfo']['width'])
-      stuff['windowInfo']['width'] = result.obfuscated
-      rs['windowInfo']['width'] = result.r_value
+      // result = obfuscate(stuff['windowInfo']['width'])
+      // stuff['windowInfo']['width'] = result.obfuscated
+      // rs['windowInfo']['width'] = result.r_value
 
 
 
@@ -463,15 +471,15 @@ function dump_enc_profile(){
 
 
 function rehash_elements(data, rs){
-  data['windowInfo']['alwaysOnTop'] = bigInt(md5((bigInt(data['windowInfo']['alwaysOnTop']).multiply(invMod(rs['windowInfo']['alwaysOnTop'], n)).mod(n))), 16);
-  data['windowInfo']['focused'] = bigInt(md5((bigInt(data['windowInfo']['focused']).multiply(invMod(rs['windowInfo']['focused'], n)).mod(n))), 16);
-  data['windowInfo']['height'] = bigInt(md5((bigInt(data['windowInfo']['height']).multiply(invMod(rs['windowInfo']['height'], n)).mod(n))), 16);
-  data['windowInfo']['incognito'] = bigInt(md5((bigInt(data['windowInfo']['incognito']).multiply(invMod(rs['windowInfo']['incognito'], n)).mod(n))), 16);
-  data['windowInfo']['left'] = bigInt(md5((bigInt(data['windowInfo']['left']).multiply(invMod(rs['windowInfo']['left'], n)).mod(n))), 16);
-  data['windowInfo']['state'] = bigInt(md5((bigInt(data['windowInfo']['state']).multiply(invMod(rs['windowInfo']['state'], n)).mod(n))), 16);
-  data['windowInfo']['top'] = bigInt(md5((bigInt(data['windowInfo']['top']).multiply(invMod(rs['windowInfo']['top'], n)).mod(n))), 16);
-  data['windowInfo']['type'] = bigInt(md5((bigInt(data['windowInfo']['type']).multiply(invMod(rs['windowInfo']['type'], n)).mod(n))), 16);
-  data['windowInfo']['width'] = bigInt(md5((bigInt(data['windowInfo']['width']).multiply(invMod(rs['windowInfo']['width'], n)).mod(n))), 16);
+  // data['windowInfo']['alwaysOnTop'] = bigInt(md5((bigInt(data['windowInfo']['alwaysOnTop']).multiply(invMod(rs['windowInfo']['alwaysOnTop'], n)).mod(n))), 16);
+  // data['windowInfo']['focused'] = bigInt(md5((bigInt(data['windowInfo']['focused']).multiply(invMod(rs['windowInfo']['focused'], n)).mod(n))), 16);
+  // data['windowInfo']['height'] = bigInt(md5((bigInt(data['windowInfo']['height']).multiply(invMod(rs['windowInfo']['height'], n)).mod(n))), 16);
+  // data['windowInfo']['incognito'] = bigInt(md5((bigInt(data['windowInfo']['incognito']).multiply(invMod(rs['windowInfo']['incognito'], n)).mod(n))), 16);
+  // data['windowInfo']['left'] = bigInt(md5((bigInt(data['windowInfo']['left']).multiply(invMod(rs['windowInfo']['left'], n)).mod(n))), 16);
+  // data['windowInfo']['state'] = bigInt(md5((bigInt(data['windowInfo']['state']).multiply(invMod(rs['windowInfo']['state'], n)).mod(n))), 16);
+  // data['windowInfo']['top'] = bigInt(md5((bigInt(data['windowInfo']['top']).multiply(invMod(rs['windowInfo']['top'], n)).mod(n))), 16);
+  // data['windowInfo']['type'] = bigInt(md5((bigInt(data['windowInfo']['type']).multiply(invMod(rs['windowInfo']['type'], n)).mod(n))), 16);
+  // data['windowInfo']['width'] = bigInt(md5((bigInt(data['windowInfo']['width']).multiply(invMod(rs['windowInfo']['width'], n)).mod(n))), 16);
   
 
   data['userAgent'] = bigInt(md5((bigInt(data['userAgent']).multiply(invMod(rs['userAgent'], n)).mod(n))), 16);
@@ -515,60 +523,60 @@ function find_common_elements(client_data, profiles){
   cnt.fill(0);
   profiles.forEach(function(element, index){
 
-    if ('windowInfo' in element && 'alwaysOnTop' in element.windowInfo){
+    // if ('windowInfo' in element && 'alwaysOnTop' in element.windowInfo){
 
-      if (bigInt(client_data.windowInfo.alwaysOnTop).toString() == element.windowInfo.alwaysOnTop){
-        cnt[index] += 1
-      }
-    }
+    //   if (bigInt(client_data.windowInfo.alwaysOnTop).toString() == element.windowInfo.alwaysOnTop){
+    //     cnt[index] += 1
+    //   }
+    // }
     
-    if ('windowInfo' in element && 'focused' in element.windowInfo){
-      if (bigInt(client_data.windowInfo.focused).toString() == element.windowInfo.focused){
-        cnt[index] += 1
-      }
-    }
+    // if ('windowInfo' in element && 'focused' in element.windowInfo){
+    //   if (bigInt(client_data.windowInfo.focused).toString() == element.windowInfo.focused){
+    //     cnt[index] += 1
+    //   }
+    // }
     
-    if ('windowInfo' in element && 'height' in element.windowInfo){
-      if (bigInt(client_data.windowInfo.height).toString() == element.windowInfo.height){
-        cnt[index] += 1
-      }
-    }
+    // if ('windowInfo' in element && 'height' in element.windowInfo){
+    //   if (bigInt(client_data.windowInfo.height).toString() == element.windowInfo.height){
+    //     cnt[index] += 1
+    //   }
+    // }
     
-    if ('windowInfo' in element && 'incognito' in element.windowInfo){
-      if (bigInt(client_data.windowInfo.incognito).toString() == element.windowInfo.incognito){
-        cnt[index] += 1
-      }
-    }
+    // if ('windowInfo' in element && 'incognito' in element.windowInfo){
+    //   if (bigInt(client_data.windowInfo.incognito).toString() == element.windowInfo.incognito){
+    //     cnt[index] += 1
+    //   }
+    // }
     
-    if ('windowInfo' in element && 'left' in element.windowInfo){
-      if (bigInt(client_data.windowInfo.left).toString() == element.windowInfo.left){
-        cnt[index] += 1
-      }
-    }
+    // if ('windowInfo' in element && 'left' in element.windowInfo){
+    //   if (bigInt(client_data.windowInfo.left).toString() == element.windowInfo.left){
+    //     cnt[index] += 1
+    //   }
+    // }
     
-    if ('windowInfo' in element && 'state' in element.windowInfo){
-      if (bigInt(client_data.windowInfo.state).toString() == element.windowInfo.state){
-        cnt[index] += 1
-      }
-    }
+    // if ('windowInfo' in element && 'state' in element.windowInfo){
+    //   if (bigInt(client_data.windowInfo.state).toString() == element.windowInfo.state){
+    //     cnt[index] += 1
+    //   }
+    // }
     
-    if ('windowInfo' in element && 'top' in element.windowInfo){
-      if (bigInt(client_data.windowInfo.top).toString() == element.windowInfo.top){
-        cnt[index] += 1
-      }
-    }
+    // if ('windowInfo' in element && 'top' in element.windowInfo){
+    //   if (bigInt(client_data.windowInfo.top).toString() == element.windowInfo.top){
+    //     cnt[index] += 1
+    //   }
+    // }
     
-    if ('windowInfo' in element && 'type' in element.windowInfo){
-      if (bigInt(client_data.windowInfo.type).toString() == element.windowInfo.type){
-        cnt[index] += 1
-      }
-    }
+    // if ('windowInfo' in element && 'type' in element.windowInfo){
+    //   if (bigInt(client_data.windowInfo.type).toString() == element.windowInfo.type){
+    //     cnt[index] += 1
+    //   }
+    // }
 
-    if ('windowInfo' in element && 'width' in element.windowInfo){
-      if (bigInt(client_data.windowInfo.width).toString() == element.windowInfo.width){
-        cnt[index] += 1
-      }
-    }
+    // if ('windowInfo' in element && 'width' in element.windowInfo){
+    //   if (bigInt(client_data.windowInfo.width).toString() == element.windowInfo.width){
+    //     cnt[index] += 1
+    //   }
+    // }
 
     if ('userAgent' in element){
       if (bigInt(client_data.userAgent).toString() == element.userAgent){
@@ -670,8 +678,6 @@ function find_common_elements(client_data, profiles){
       })
     }
 
-    // TODO: Following three values not TESTED
-
     if ('webgl_gpu' in element){
       if (bigInt(client_data.webgl_gpu).toString() == element.webgl_gpu){
         cnt[index] += 1
@@ -690,7 +696,6 @@ function find_common_elements(client_data, profiles){
       }
     }
 
-    // END OF TODO
 
 
   })
@@ -711,27 +716,27 @@ function uploadProfile(){
     if (xhr.readyState === 4) {
       var serverResponse = xhr.responseText;
       console.log("Received data");
-      notifyUser("Profile has been Uploaded!");
-    }else {
-      notifyUser("Profile upload failed!");
-    }        
+      pop_notification("Profile has been Uploaded!");
+    }       
   };
-  xhr.send(JSON.stringify(profile));
+  var profile_data = "profile=" + 
+      encodeURIComponent(JSON.stringify(profile))
+  xhr.send(profile_data);
 }
 
 function dump_profile(){
 
       stuff = {}
-      stuff['windowInfo'] = {}
-      stuff['windowInfo']['alwaysOnTop'] = windowInfo.alwaysOnTop;
-      stuff['windowInfo']['focused'] = windowInfo.focused;
-      stuff['windowInfo']['height'] = windowInfo.height;
-      stuff['windowInfo']['incognito'] = windowInfo.incognito;
-      stuff['windowInfo']['left'] = windowInfo.left;
-      stuff['windowInfo']['state'] = windowInfo.state;
-      stuff['windowInfo']['top'] = windowInfo.top;
-      stuff['windowInfo']['type'] = windowInfo.type;
-      stuff['windowInfo']['width'] = windowInfo.width;
+      // stuff['windowInfo'] = {}
+      // stuff['windowInfo']['alwaysOnTop'] = windowInfo.alwaysOnTop;
+      // stuff['windowInfo']['focused'] = windowInfo.focused;
+      // stuff['windowInfo']['height'] = windowInfo.height;
+      // stuff['windowInfo']['incognito'] = windowInfo.incognito;
+      // stuff['windowInfo']['left'] = windowInfo.left;
+      // stuff['windowInfo']['state'] = windowInfo.state;
+      // stuff['windowInfo']['top'] = windowInfo.top;
+      // stuff['windowInfo']['type'] = windowInfo.type;
+      // stuff['windowInfo']['width'] = windowInfo.width;
       stuff['userAgent'] = userAgent;
       stuff['timezone'] = timezone;
 
@@ -776,20 +781,8 @@ function dump_profile(){
 
 }
 
-function request_new_profile(profile, details){
-      var xhr = new XMLHttpRequest();
-      var url = URL + "/retrieveprofile";
-      xhr.open("POST", url, true);
-      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhr.onreadystatechange = function() {
-
-        if (xhr.readyState === 4) {
-
-          var serverResponse = xhr.responseText;
-          received_data = JSON.parse(serverResponse).resp;
-
-
-          //Change the user agent by modifying the navigator object
+function adapt_phase(received_data, details){
+   //Change the user agent by modifying the navigator object
           navigator.__defineGetter__('userAgent', function(){
             return received_data.userAgent;
           }); 
@@ -835,7 +828,7 @@ function request_new_profile(profile, details){
           var docId = getRandomString();
           var docId2 = getRandomString();
           generate_canvas_fp();
-          chrome.tabs.executeScript(details.tabId, {
+          chrome.tabs.executeScript(details, {
             code: "var docId='" + docId + 
                   "';var docId2='" + docId2 + 
                   "';var r=" + canvas_data.r + 
@@ -850,7 +843,7 @@ function request_new_profile(profile, details){
             allFrames: true,
             matchAboutBlank: true
           });
-          chrome.tabs.executeScript(details.tabId, {
+          chrome.tabs.executeScript(details, {
               file: "content.js",
               runAt: "document_start",
               allFrames: true,
@@ -861,6 +854,22 @@ function request_new_profile(profile, details){
 
           target_fonts = received_data.fonts;
           sendtoflask();
+}
+
+function request_new_profile(profile, details){
+      var xhr = new XMLHttpRequest();
+      var url = URL + "/retrieveprofile";
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = function() {
+
+        if (xhr.readyState === 4) {
+
+          var serverResponse = xhr.responseText;
+          received_data = JSON.parse(serverResponse).resp;
+          localStorage["profile"] = JSON.stringify(received_data);
+          console.log(details)
+          adapt_phase(received_data, details);
 
         }
       }
@@ -911,15 +920,12 @@ function call_remote_server(details){
         }        
       };
 
-      dump_profile();
-      rs_array = dump_enc_profile();
-      
+      rs_array = dump_enc_profile();      
       /*
           Take all of the hashed elements of the clinet
           and apply a random value.
 
-      */
-   
+      */   
       var enc_data_final = "enc_data=" + 
         encodeURIComponent(JSON.stringify(stuff))
 
@@ -955,7 +961,8 @@ function sendRequest(details){
     if (!flag){ 
       start = performance.now();
 
-      //get_remote_server_pk();     
+      //get_remote_server_pk(); 
+      console.log(details);    
       call_remote_server(details);
      
     }
@@ -975,6 +982,7 @@ function sendRequest(details){
     return should_block;
 }
 
+
 function currentTab(tab){
   currentTabId = tab.id;
   currentUrl = tab.favIconUrl; 
@@ -992,10 +1000,10 @@ chrome.tabs.query({},function(tabs){
 });
 
 
-chrome.webRequest.onBeforeRequest.addListener(
- 	maincall,
- 	{urls: ["<all_urls>"]},
- 	["blocking"]);
+// chrome.webRequest.onBeforeRequest.addListener(
+//  	maincall2,
+//  	{urls: ["<all_urls>"]},
+//  	["blocking"]);
 
 /**
 Obfuscate the ETag header. Replace it with a base64 encoded
@@ -1051,14 +1059,13 @@ function getRandomString() {
 }
 //-============CANVAS==========/
 
-
 chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
    if (request.action === "upload-profile") {
         uploadProfile();
     } 
 });
 
-function notifyUser(message) {
+function pop_notification(message) {
     var options = {
         type: "basic",
         title: "Upload profile status",
@@ -1069,3 +1076,33 @@ function notifyUser(message) {
     chrome.notifications.create(options, function (notificationId) {
     });
 }
+
+
+
+var local_profile = localStorage["profile"];
+if (local_profile == undefined) {
+  console.log('why?')
+  initialize_bronymity(); //could this be mainlcall()?
+  pop_notification("Bronymity initialized");
+} else {
+  local_profile = JSON.parse(local_profile);
+  pop_notification("Profile bla is active");
+}
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  console.log(tabId);
+  adapt_phase(local_profile, tabId);
+    // chrome.tabs.executeScript(tabId, {
+    //     code: "var docId='" + docId + "';var r=" + data.r + ";var g=" + data.g + ";var b=" + data.b + ";var a=" + data.a + ";",
+    //     runAt: "document_start",
+    //     allFrames: true,
+    //     matchAboutBlank: true
+    // });
+    // chrome.tabs.executeScript(tabId, {
+    //     file: "js/content.js",
+    //     runAt: "document_start",
+    //     allFrames: true,
+    //     matchAboutBlank: true
+    // });
+    //console.log("r" + data.r + "g" + data.g + "b" + data.b + "a" + data.a);
+});

@@ -29,11 +29,13 @@ def getpk():
 def uploadprofile():
   try:
     f = open('profiles', 'a')
-    f.write(request.form.get('profile'))
+    f.write(str(request.form.get('profile')))
+    f.write('\n')
     f.close
     return "OK"
   except Exception as e:
-    return "404"
+    print e
+    return "Error"
 
 
 @app.route('/retrieveprofile', methods=['POST'])

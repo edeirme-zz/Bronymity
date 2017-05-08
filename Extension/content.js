@@ -132,7 +132,6 @@ if (allowInjection) {
 
 function webgl_main(scriptId, webgl_gpu, webgl_gpu_vendor, webgl_shading_language_version) {
     var scriptNode = document.getElementById(scriptId);
-    console.log("asd")
     function overrideWebGLRendProto(root) {
         var getParameter = root.prototype.getParameter;
 
@@ -170,7 +169,6 @@ var webgl_script = document.createElement('script');
 webgl_script.id = getRandomString();
 webgl_script.type = "text/javascript";
 if (allowInjection) {
-    console.log("boo")
     var newChild = document.createTextNode('try{(' + 
         webgl_main + 
         ')("' + 

@@ -20,7 +20,7 @@ var appVersion = navigator.appVersion;
 var plugins = [];
 var start;
 var ips = [];
-var URL = "http://192.168.149.128:3001";
+var URL = "http://192.168.150.133:3001";
 var   enc_plugins = [],
       enc_userAgent = "",
       enc_timezone = "",
@@ -129,10 +129,6 @@ function errorHandler(e) {
   console.log(e);
 }
 
-getLocalIPs(function(temp_ips) { 
-    ips = temp_ips
-    console.log(ips);
-});
 
 
 function initialize_bronymity(details){  
@@ -141,6 +137,9 @@ function initialize_bronymity(details){
   // chrome.windows.getLastFocused(null, WindowInfo);  
   call_remote_server(details);  
 }
+
+
+
 
 function getLocalIPs(callback) {
 
@@ -348,6 +347,7 @@ function dump_enc_profile(){
 
       stuff['ips'] = new Array(ips.length);
       rs['ips'] = new Array(ips.length);
+      console.log(ips);
 
       ips.forEach(function(element, index){
         stuff['ips'][index] = bigInt(md5(element), 16).toString();
@@ -658,7 +658,6 @@ function find_common_elements(client_data, profiles){
 
   })
   console.log(cnt)
-
   return cnt
 }
 
@@ -727,8 +726,6 @@ function dump_profile(){
         stuff['fonts'][index]['fontId'] = element.fontId;
       })
 
-
-      //Not tested!
       stuff['webgl_gpu'] = webgl_gpu;
       stuff['webgl_gpu_vendor'] = webgl_gpu_vendor;
       stuff['webgl_shading_language_version'] = webgl_shading_language_version;
@@ -828,6 +825,16 @@ function request_new_profile(profile, details){
           var serverResponse = xhr.responseText;
           received_data = JSON.parse(serverResponse).resp;
           localStorage["profile"] = JSON.stringify(received_data);
+          // Adapt fonts
+          local_profile = localStorage["profile"];
+          try {
+            adapt_phase_fonts(local_profile);   
+            pop_notification("Fonts updated!");
+          } catch (err) {
+            console.log(err);
+            pop_notification("Font removal failed. Cannot connect to server");
+          }
+          // 
         }
       }
           
@@ -874,7 +881,6 @@ function call_remote_server(details){
           
         }        
       };
-
       rs_array = dump_enc_profile();      
       /*
           Take all of the hashed elements of the clinet
@@ -883,7 +889,6 @@ function call_remote_server(details){
       */   
       var enc_data_final = "enc_data=" + 
         encodeURIComponent(JSON.stringify(stuff))
-
       console.log("Before send")
 
       /*
@@ -892,15 +897,12 @@ function call_remote_server(details){
       xhr.send(enc_data_final);
 }
 
-// function currentTab(tab){
-//   currentTabId = tab.id;
-//   currentUrl = tab.favIconUrl; 
-  
-// }
-
-
 function giefFonts(FontName){
   fonts = FontName;
+  getLocalIPs(function(temp_ips) { 
+    ips = temp_ips
+    main_init();
+  });  
 }
 
 function WindowInfo(e){
@@ -945,35 +947,35 @@ function pop_notification(message) {
 }
 
 
+
+
+
+// IP and Fonts are delayed. Why?
+var local_profile = localStorage["profile"];
+chrome.fontSettings.getFontList(giefFonts); // Get fonts
+
 // Font may pose a great time consuming process
 // This is why we change fonts only at initializion
 // and not on every Update of the tabs.
-
-var local_profile = localStorage["profile"];
-if (local_profile == undefined) {
-  initialize_bronymity(); //could this be mainlcall()?
-  pop_notification("Bronymity initialized");
-  try {
-    local_profile = localStorage["profile"];
-    adapt_phase_fonts(local_profile);   
-    pop_notification("Fonts updated!");
-  } catch (err) {
-    console.log(err);
-    pop_notification("Font removal failed. Cannot connect to server");
-  }
-} else {
-  local_profile = JSON.parse(local_profile);
-  try {
-    adapt_phase_fonts(local_profile);   
-    pop_notification("Fonts updated!");
-  } catch (err) {
-    console.log(err);
-    pop_notification("Font removal failed. Cannot connect to server");
+function main_init(){  
+  if (local_profile == undefined) {
+    initialize_bronymity();
+    pop_notification("Bronymity initialized");    
+  } else {
+    local_profile = JSON.parse(local_profile);
+    try {
+      adapt_phase_fonts(local_profile);   
+      pop_notification("Fonts updated!");
+    } catch (err) {
+      console.log(err);
+      pop_notification("Font removal failed. Cannot connect to server");
+    }
   }
 }
 
-
-
+// The following listener might get called
+// before main_init is finished. Some errors might occur
+// but we're Ok.
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   adapt_phase(local_profile, tabId);
 });
@@ -981,10 +983,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
    if (request.action === "upload-profile") {
         uploadProfile();
-    } 
+    } else if (request.action === "reinitialize-profile"){
+      initialize_bronymity();
+    }
 });
 
-chrome.fontSettings.getFontList(giefFonts); // Get fonts
 
 
 /**

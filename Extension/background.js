@@ -1,8 +1,8 @@
 var min = 1;
 var max = 5;
 var current = min;
-var currentTabId;
-var currentUrl;
+// var currentTabId;
+// var currentUrl;
 var fonts = [];
 var target_fonts;
 var plugins_temp = navigator.plugins; //Get plugins
@@ -18,14 +18,9 @@ var productSub = navigator.productSub;
 var vendor = navigator.vendor;
 var appVersion = navigator.appVersion;
 var plugins = [];
-var tablink;
-var all_tabs;
-var temp_tab;
 var start;
-var flag = 0;
-var should_block = false;
 var ips = [];
-var URL = "http://192.168.150.133:3001";
+var URL = "http://192.168.149.128:3001";
 var   enc_plugins = [],
       enc_userAgent = "",
       enc_timezone = "",
@@ -49,6 +44,7 @@ webgl_gpu = gl.getParameter(37445);
 webgl_gpu_vendor = gl.getParameter(37446);
 webgl_shading_language_version = gl.getParameter(35724);
 mycanvas.parentNode.removeChild(mycanvas);
+
 //=================
 // PSI requirements
 //=================
@@ -138,32 +134,11 @@ getLocalIPs(function(temp_ips) {
     console.log(ips);
 });
 
-function maincall(details) {  
-
-  // In order to override the WebGL object we need to do it before js files are called.
-  // Dunno why, don't ask me. 
-  // NOTE: the WebGL object will be overriden only by 'script' details type. We don;t\
-  // need 'html' files.
-  // We accept tabId greater than 0. Values below zero originate from extensions.
-  // if(details && details.tabId >= 0 &&
-  //     details.method === 'GET' &&
-  //     (details.type === 'main_frame' ||
-  //      details.type === "script" )){
-  console.log("asdf")
-  sendRequest(details);  
-  chrome.tabs.getSelected(null,currentTab);  
-  chrome.windows.getLastFocused(null, WindowInfo);
-  
-
-  //   return {cancel:true};
-  // } 
-}
 
 function initialize_bronymity(details){  
   start = performance.now(); 
-  chrome.tabs.getSelected(null,currentTab);  
-  chrome.windows.getLastFocused(null, WindowInfo);  
-  chrome.fontSettings.getFontList(giefFonts);
+  // chrome.tabs.getSelected(null,currentTab);  
+  // chrome.windows.getLastFocused(null, WindowInfo);  
   call_remote_server(details);  
 }
 
@@ -228,7 +203,6 @@ function sendtoflask(){
   xhr2.onreadystatechange = function() {
     if (xhr2.readyState === 4) {
       //Upon receiving the response from the flask framework
-      chrome.fontSettings.getFontList(giefFonts);
       var res = xhr2.responseText;
       var success_count = JSON.parse(res).success_count;
       var fail_count = JSON.parse(res).fail_count;
@@ -245,22 +219,6 @@ function sendtoflask(){
   xhr2.send("fonts=" + encodeURIComponent(JSON.stringify(fonts))
           + "&target_fonts=" + encodeURIComponent(JSON.stringify(target_fonts))
          );
-}
-
-
-function get_remote_server_pk(){
-  // Temporarily we set the pk to a fix value
-  // var xhr = new XMLHttpRequest();
-  // var url = "http://localhost:3001/getpk";
-  // xhr.open("GET", url, true);
-
-  // xhr.onreadystatechange = function() {
-  //   if (xhr.readyState === 4) {
-  //     var serverResponse = xhr.responseText;
-  //     n = JSON.parse(serverResponse).public_key;
-  //   }
-  //   xhr.send();
-  // }
 }
 
 
@@ -776,85 +734,87 @@ function dump_profile(){
       stuff['webgl_shading_language_version'] = webgl_shading_language_version;
 
       return stuff
-      // console.log(stuff)
 
 
 }
 
 function adapt_phase(received_data, details){
    //Change the user agent by modifying the navigator object
-          navigator.__defineGetter__('userAgent', function(){
-            return received_data.userAgent;
-          }); 
+    navigator.__defineGetter__('userAgent', function(){
+      return received_data.userAgent;
+    }); 
 
-          //Change the plugins by modifying the navigator object
-          navigator.__defineGetter__('plugins', function(){
-            return received_data.plugins;
-          });   
+    //Change the plugins by modifying the navigator object
+    navigator.__defineGetter__('plugins', function(){
+      return received_data.plugins;
+    });   
 
-          //Change the cookieEnabled option by modifying the navigator object
-          navigator.__defineGetter__('cookieEnabled', function(){
-            return received_data.cookieEnabled;
-          }); 
+    //Change the cookieEnabled option by modifying the navigator object
+    navigator.__defineGetter__('cookieEnabled', function(){
+      return received_data.cookieEnabled;
+    }); 
 
-          navigator.__defineGetter__('productSub', function(){
-            return received_data.productSub;
-          }); 
+    navigator.__defineGetter__('productSub', function(){
+      return received_data.productSub;
+    }); 
 
-          navigator.__defineGetter__('vendor', function(){
-            return received_data.vendor;
-          }); 
+    navigator.__defineGetter__('vendor', function(){
+      return received_data.vendor;
+    }); 
 
-          navigator.__defineGetter__('appVersion', function(){
-            return received_data.appVersion;
-          }); 
+    navigator.__defineGetter__('appVersion', function(){
+      return received_data.appVersion;
+    }); 
 
-          screen.__defineGetter__('width', function(){
-            return received_data.screenwidth;
-          })
+    screen.__defineGetter__('width', function(){
+      return received_data.screenwidth;
+    })
 
-          screen.__defineGetter__('depth', function(){
-            return received_data.screendepth;
-          })
+    screen.__defineGetter__('depth', function(){
+      return received_data.screendepth;
+    })
 
-          screen.__defineGetter__('height', function(){
-            return received_data.screenheight;
-          })
-          // Resetting the window name
-          window.name = ""
-          console.log(received_data);
+    screen.__defineGetter__('height', function(){
+      return received_data.screenheight;
+    })
+    // Resetting the window name
+    window.name = ""
 
-          // WebGL section start
-          var docId = getRandomString();
-          var docId2 = getRandomString();
-          generate_canvas_fp();
-          chrome.tabs.executeScript(details, {
-            code: "var docId='" + docId + 
-                  "';var docId2='" + docId2 + 
-                  "';var r=" + canvas_data.r + 
-                  ";var g=" + canvas_data.g + 
-                  ";var b=" + canvas_data.b + 
-                  ";var a=" + canvas_data.a + 
-                  ";var webgl_gpu_vendor='" + received_data.webgl_gpu_vendor + 
-                  "';var webgl_gpu='" + received_data.webgl_gpu + 
-                  "';var webgl_shading_language_version='" + received_data.webgl_shading_language_version + 
-                  "';",
-            runAt: "document_start",
-            allFrames: true,
-            matchAboutBlank: true
-          });
-          chrome.tabs.executeScript(details, {
-              file: "content.js",
-              runAt: "document_start",
-              allFrames: true,
-              matchAboutBlank: true
-          });  
-          // WebGL section end
-          console.log("Initiating font call to local server");
-
-          target_fonts = received_data.fonts;
-          sendtoflask();
+    // WebGL section start
+    var docId = getRandomString();
+    var docId2 = getRandomString();
+    generate_canvas_fp();
+    chrome.tabs.executeScript(details, {
+      code: "var docId='" + docId + 
+            "';var docId2='" + docId2 + 
+            "';var r=" + canvas_data.r + 
+            ";var g=" + canvas_data.g + 
+            ";var b=" + canvas_data.b + 
+            ";var a=" + canvas_data.a + 
+            ";var webgl_gpu_vendor='" + received_data.webgl_gpu_vendor + 
+            "';var webgl_gpu='" + received_data.webgl_gpu + 
+            "';var webgl_shading_language_version='" + received_data.webgl_shading_language_version + 
+            "';",
+      runAt: "document_start",
+      allFrames: true,
+      matchAboutBlank: true
+    });
+    chrome.tabs.executeScript(details, {
+        file: "content.js",
+        runAt: "document_start",
+        allFrames: true,
+        matchAboutBlank: true
+    });  
+    // WebGL section end
 }
+
+function adapt_phase_fonts(received_data){
+
+  console.log("Initiating font call to local server");
+  target_fonts = received_data.fonts;
+  sendtoflask();
+}
+
 
 function request_new_profile(profile, details){
       var xhr = new XMLHttpRequest();
@@ -868,17 +828,12 @@ function request_new_profile(profile, details){
           var serverResponse = xhr.responseText;
           received_data = JSON.parse(serverResponse).resp;
           localStorage["profile"] = JSON.stringify(received_data);
-          console.log(details)
-          adapt_phase(received_data, details);
-
         }
       }
-
           
       var profile_data = "profile=" + 
       encodeURIComponent(JSON.stringify(profile))
       xhr.send(profile_data);
-
 }
 
 
@@ -937,73 +892,100 @@ function call_remote_server(details){
       xhr.send(enc_data_final);
 }
 
-function sendRequest(details){
-
-  chrome.tabs.getSelected(null,function(tab) {
-    tablink = parseURL(tab.url);
-    
-  if(tablink.hostname === 'google.com' || 
-    tablink.hostname === 'www.google.gr' ||
-    tablink.hostname === 'www.google.com' ||
-    tablink.hostname === 'fingerprintable.org'
-    ){
-    flag = 0;
-    for (var i = 0; i < all_tabs.length; i++) {
-      temp_tab = parseURL(all_tabs[i].url);
-      if( temp_tab.hostname === 'google.com' ||
-       temp_tab.hostname === 'www.google.gr' ||
-       temp_tab.hostname === 'www.google.com' ||
-       temp_tab.hostname === 'fingerprintable.org'
-       )
-        flag = 1;
-    };
-    //if flag = 0 means that the url google.com is not opened already
-    if (!flag){ 
-      start = performance.now();
-
-      //get_remote_server_pk(); 
-      console.log(details);    
-      call_remote_server(details);
-     
-    }
-    should_block = false;
-
-  }
-  else {
-    should_block = true;
-    console.log(tablink.hostname);    
-  }
+// function currentTab(tab){
+//   currentTabId = tab.id;
+//   currentUrl = tab.favIconUrl; 
   
-  });
-    chrome.tabs.query({},function(tabs){
-      all_tabs = tabs;
-    });
-    chrome.fontSettings.getFontList(giefFonts);
-    return should_block;
-}
-
-
-function currentTab(tab){
-  currentTabId = tab.id;
-  currentUrl = tab.favIconUrl; 
-  
-}
+// }
 
 
 function giefFonts(FontName){
   fonts = FontName;
 }
 
+function WindowInfo(e){
+  windowInfo = e;
+}
 
-chrome.tabs.query({},function(tabs){
-  all_tabs = tabs;
+
+//======== CANVAS=============/
+function generate_canvas_fp(){
+    canvas_data = {};
+    canvas_data.r = 10 - randomIntFromInterval(0, 20);
+    canvas_data.g = 10 - randomIntFromInterval(0, 20);
+    canvas_data.b = 10 - randomIntFromInterval(0, 20);
+    canvas_data.a = 10 - randomIntFromInterval(0, 20);
+}
+
+function randomIntFromInterval(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
+function getRandomString() {
+    var text = "";
+    var charset = "abcdefghijklmnopqrstuvwxyz";
+    for (var i = 0; i < 5; i++)
+        text += charset.charAt(Math.floor(Math.random() * charset.length));
+    return text;
+}
+//============CANVAS==========/
+
+
+
+function pop_notification(message) {
+    var options = {
+        type: "basic",
+        title: "Upload profile status",
+        message: message,
+        iconUrl: "img/img.png"
+    }
+
+    chrome.notifications.create(options, function (notificationId) {
+    });
+}
+
+
+// Font may pose a great time consuming process
+// This is why we change fonts only at initializion
+// and not on every Update of the tabs.
+
+var local_profile = localStorage["profile"];
+if (local_profile == undefined) {
+  initialize_bronymity(); //could this be mainlcall()?
+  pop_notification("Bronymity initialized");
+  try {
+    local_profile = localStorage["profile"];
+    adapt_phase_fonts(local_profile);   
+    pop_notification("Fonts updated!");
+  } catch (err) {
+    console.log(err);
+    pop_notification("Font removal failed. Cannot connect to server");
+  }
+} else {
+  local_profile = JSON.parse(local_profile);
+  try {
+    adapt_phase_fonts(local_profile);   
+    pop_notification("Fonts updated!");
+  } catch (err) {
+    console.log(err);
+    pop_notification("Font removal failed. Cannot connect to server");
+  }
+}
+
+
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  adapt_phase(local_profile, tabId);
 });
 
+chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
+   if (request.action === "upload-profile") {
+        uploadProfile();
+    } 
+});
 
-// chrome.webRequest.onBeforeRequest.addListener(
-//  	maincall2,
-//  	{urls: ["<all_urls>"]},
-//  	["blocking"]);
+chrome.fontSettings.getFontList(giefFonts); // Get fonts
+
 
 /**
 Obfuscate the ETag header. Replace it with a base64 encoded
@@ -1029,80 +1011,3 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
   {urls: ['<all_urls>']},
   [ 'blocking', 'requestHeaders']
 );
-
-
-chrome.fontSettings.getFontList(giefFonts); // Get fonts
-
-
-function WindowInfo(e){
-  windowInfo = e;
-}
-
-function generate_canvas_fp(){
-    canvas_data = {};
-    canvas_data.r = 10 - randomIntFromInterval(0, 20);
-    canvas_data.g = 10 - randomIntFromInterval(0, 20);
-    canvas_data.b = 10 - randomIntFromInterval(0, 20);
-    canvas_data.a = 10 - randomIntFromInterval(0, 20);
-}
-
-function randomIntFromInterval(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-}
-
-function getRandomString() {
-    var text = "";
-    var charset = "abcdefghijklmnopqrstuvwxyz";
-    for (var i = 0; i < 5; i++)
-        text += charset.charAt(Math.floor(Math.random() * charset.length));
-    return text;
-}
-//-============CANVAS==========/
-
-chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
-   if (request.action === "upload-profile") {
-        uploadProfile();
-    } 
-});
-
-function pop_notification(message) {
-    var options = {
-        type: "basic",
-        title: "Upload profile status",
-        message: message,
-        iconUrl: "img/img.png"
-    }
-
-    chrome.notifications.create(options, function (notificationId) {
-    });
-}
-
-
-
-var local_profile = localStorage["profile"];
-if (local_profile == undefined) {
-  console.log('why?')
-  initialize_bronymity(); //could this be mainlcall()?
-  pop_notification("Bronymity initialized");
-} else {
-  local_profile = JSON.parse(local_profile);
-  pop_notification("Profile bla is active");
-}
-
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  console.log(tabId);
-  adapt_phase(local_profile, tabId);
-    // chrome.tabs.executeScript(tabId, {
-    //     code: "var docId='" + docId + "';var r=" + data.r + ";var g=" + data.g + ";var b=" + data.b + ";var a=" + data.a + ";",
-    //     runAt: "document_start",
-    //     allFrames: true,
-    //     matchAboutBlank: true
-    // });
-    // chrome.tabs.executeScript(tabId, {
-    //     file: "js/content.js",
-    //     runAt: "document_start",
-    //     allFrames: true,
-    //     matchAboutBlank: true
-    // });
-    //console.log("r" + data.r + "g" + data.g + "b" + data.b + "a" + data.a);
-});

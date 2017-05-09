@@ -35,6 +35,7 @@ var   enc_plugins = [],
       enc_ips = [],
       enc_windowInfo = [];
 
+
 var mycanvas = document.createElement("canvas");
 mycanvas.id = "mycanvas";
 document.body.appendChild(mycanvas);
@@ -978,8 +979,23 @@ function main_init(){
 // but we're Ok.
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   adapt_phase(local_profile, tabId);
+  // Block Flash    
+  if (changeInfo && changeInfo.url !== undefined){
+      chrome.contentSettings.plugins.set({
+        'primaryPattern': '<all_urls>',
+        'resourceIdentifier': { 'id': 'adobe-flash-player' },
+        'setting': 'block',
+      }, callback);
+    }
 });
 
+function callback() {
+    if (chrome.runtime.lastError) {
+        console.log(chrome.runtime.lastError.message);
+    } else {
+        // Tab exists
+    }
+}
 chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
    if (request.action === "upload-profile") {
         uploadProfile();

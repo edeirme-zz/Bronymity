@@ -23,6 +23,7 @@
     "activeTab",
     "fontSettings",
     "unlimitedStorage",
+    "contentSettings",
     "http://*/*", 
     "https://*/*"
   ],

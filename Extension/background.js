@@ -974,6 +974,30 @@ function main_init(){
   }
 }
 
+function scrap_page(tab){
+  console.log(tab)
+  var a = document.getElementById("details");
+  console.log(a);
+}
+
+function start_tests(){
+  var newURL = "https://amiunique.org/fp";
+  chrome.tabs.create({ url: newURL }, function(tab){
+    scrap_page(tab);
+    chrome.tabs.executeScript(tab.tabId, {
+      file: "getPageSource.js"
+    }, function() {
+      // If you try and inject into an extensions page or the webstore/NTP you'll get an error
+      if (chrome.runtime.lastError) {
+        message.innerText = 'There was an error injecting script : \n' + chrome.runtime.lastError.message;
+      }
+    });
+  });
+
+
+}
+
+
 // The following listener might get called
 // before main_init is finished. Some errors might occur
 // but we're Ok.
@@ -1001,9 +1025,14 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
         uploadProfile();
     } else if (request.action === "reinitialize-profile"){
       initialize_bronymity();
-    }
+    } else if (request.action === "start-tests"){
+      start_tests();
+    } else if (request.action == "getSource") {
+      console.log(request.source);
+      // should send this to C&C
+      // message.innerText = request.source;
+   }
 });
-
 
 
 /**

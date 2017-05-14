@@ -6,7 +6,8 @@
    "scripts": [
     "BigInteger.min.js",
     "md5.min.js",
-    "background.js"    
+    "background.js",
+    "arrive.js"    
   ]
   },
   "browser_action": {

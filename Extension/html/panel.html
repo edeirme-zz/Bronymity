@@ -7,10 +7,21 @@
 
 <div id="content">
     <h2>Bronymity</h2>
+    <form>
+	  <input type="radio" id="activated" name="status" value="activated"> Activated<br>
+	  <input type="radio" id="deactivated" name="status" value="deactivated"> Deactivated<br>
+	</form>
     <button type="button" id="upload_profile">Upload profile</button>
     <button type="button" id="reinitialize_profile">Re-initialize profile</button>
 
     <button type="button" id="start_tests">Start tests</button>
+    <button type="button" id="start_browserprint">Start browserprint</button>
+
+
+    <form id="submit_browserprint"> Please insert browserprint's browser UUID    	
+    	<input type="text" id="fname" name="fname">
+    	<input type="submit" value="Submit">
+    </form>
 </div>
 
 </body>

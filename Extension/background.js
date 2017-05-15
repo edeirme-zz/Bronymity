@@ -953,39 +953,45 @@ function pop_notification(message) {
 
 // IP and Fonts are delayed. Why?
 var local_profile = localStorage["profile"];
+var bronymity_active = localStorage["status"];
 chrome.fontSettings.getFontList(giefFonts); // Get fonts
-
 // Font may pose a great time consuming process
 // This is why we change fonts only at initializion
 // and not on every Update of the tabs.
 function main_init(){  
-  if (local_profile == undefined) {
-    initialize_bronymity();
-    pop_notification("Bronymity initialized");    
-  } else {
-    local_profile = JSON.parse(local_profile);
-    try {
-      adapt_phase_fonts(local_profile);   
-      pop_notification("Fonts updated!");
-    } catch (err) {
-      console.log(err);
-      pop_notification("Font removal failed. Cannot connect to server");
+  local_profile = localStorage["profile"];
+  bronymity_active = localStorage["status"];
+  if (bronymity_active === "activated"){
+    if (local_profile == undefined) {
+      initialize_bronymity();
+      pop_notification("Bronymity initialized");    
+    } else {
+      local_profile = JSON.parse(local_profile);
+      try {
+        adapt_phase_fonts(local_profile);   
+        pop_notification("Fonts updated!");
+      } catch (err) {
+        console.log(err);
+        pop_notification("Font removal failed. Cannot connect to server");
+      }
     }
   }
+  
 }
 
-function scrap_page(tab){
-  console.log(tab)
-  var a = document.getElementById("details");
-  console.log(a);
-}
-
-function start_tests(){
-  var newURL = "https://amiunique.org/fp";
+function automate_test(newURL, tableId, flag){
+  tmpfile = flag+".js"
   chrome.tabs.create({ url: newURL }, function(tab){
-    scrap_page(tab);
+      chrome.tabs.executeScript(tab.tabId, {
+      code: "tableId='" + tableId + 
+            "';flag='" + flag +
+            "';",
+      runAt: "document_start",
+      allFrames: true,
+      matchAboutBlank: true
+    });
     chrome.tabs.executeScript(tab.tabId, {
-      file: "getPageSource.js"
+      file: tmpfile
     }, function() {
       // If you try and inject into an extensions page or the webstore/NTP you'll get an error
       if (chrome.runtime.lastError) {
@@ -993,8 +999,14 @@ function start_tests(){
       }
     });
   });
+}
 
+function start_tests(){
+  automate_test("https://amiunique.org/fp", "#details", "getPageSource");
+}
 
+function start_browserprint(){
+  chrome.tabs.create({ url: "https://browserprint.info/test" });
 }
 
 
@@ -1027,11 +1039,26 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
       initialize_bronymity();
     } else if (request.action === "start-tests"){
       start_tests();
-    } else if (request.action == "getSource") {
+    } else if (request.action === "start-browserprint"){
+      start_browserprint();
+    } else if (request.action == "getPageSource") {
+      localStorage["amiunique"] = request.source;
       console.log(request.source);
+      automate_test("https://panopticlick.eff.org/results", "#results", "panopticlick");
       // should send this to C&C
       // message.innerText = request.source;
-   }
+    } else if (request.action == "panopticlick") {
+      console.log(request.source);
+      localStorage["panopticlick"] = request.source;
+    } else if (request.action == "submit-browserprint") {
+      localStorage["browserprint"] = request.source;
+    } else if (request.action == "enable-plugin") {
+      localStorage["status"] = "activated";
+      main_init();
+    } else if (request.action == "disable-plugin") {
+      localStorage["status"] = "deactivated";
+    } 
+   
 });
 
 

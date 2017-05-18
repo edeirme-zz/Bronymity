@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var submitBrowserprint = document.getElementById('submit_browserprint');
     var enablePlugin = document.getElementById('activated');
     var disablePlugin = document.getElementById('deactivated');
+    var uploadTestResults = document.getElementById('upload_test_results');
+
+
     uploadProfile.addEventListener('click', function () {
         chrome.runtime.sendMessage({action: "upload-profile"});
         window.close();
@@ -44,6 +47,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     disablePlugin.addEventListener('click', function (e) {
         chrome.runtime.sendMessage({action: "disable-plugin"});
+        window.close();         
+    });
+    uploadTestResults.addEventListener('click', function (e) {
+        chrome.runtime.sendMessage({action: "upload-test-results"});
         window.close();         
     });
 });

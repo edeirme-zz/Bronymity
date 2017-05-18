@@ -1009,6 +1009,41 @@ function start_browserprint(){
   chrome.tabs.create({ url: "https://browserprint.info/test" });
 }
 
+function uploadTestResults(){
+  if (localStorage["amiunique"] !== undefined &&
+    localStorage["browserprint"] !== undefined &&
+    localStorage["panopticlick"] !== undefined &&
+    localStorage["status"] !== undefined &&
+    localStorage["userID"] !== undefined) {
+
+
+      var xhr = new XMLHttpRequest();
+      var url = URL + "/uploadTestResults";
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          var serverResponse = xhr.responseText;
+          console.log("Received data");
+          pop_notification("Test results have been Uploaded!");
+        }       
+      };
+      var test_results = "amiunique=" + encodeURIComponent(JSON.stringify(localStorage["amiunique"])) +
+                          "browserprint=" + encodeURIComponent(JSON.stringify(localStorage["browserprint"])) +
+                          "panopticlick=" + encodeURIComponent(JSON.stringify(localStorage["panopticlick"])) +
+                          "status=" + encodeURIComponent(JSON.stringify(localStorage["status"])) +
+                          "userID=" + encodeURIComponent(JSON.stringify(localStorage["userID"]))
+
+
+      xhr.send(test_results);
+
+
+  } else {
+    pop_notification("You are missing something")
+  }
+}
+
 
 // The following listener might get called
 // before main_init is finished. Some errors might occur
@@ -1057,6 +1092,8 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
       main_init();
     } else if (request.action == "disable-plugin") {
       localStorage["status"] = "deactivated";
+    } else if (request.action == "upload-test-results") {
+      uploadTestResults();
     } 
    
 });

@@ -954,6 +954,20 @@ function pop_notification(message) {
 // IP and Fonts are delayed. Why?
 var local_profile = localStorage["profile"];
 var bronymity_active = localStorage["status"];
+var userID = localStorage["userID"];
+if (userID == undefined) {
+  localStorage["userID"] = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+});
+  userID = localStorage["userID"];
+}
+
+var bronymity_status = localStorage["status"];
+if (bronymity_status == undefined) {
+  localStorage["status"] = "deactivated";
+}
+
 chrome.fontSettings.getFontList(giefFonts); // Get fonts
 // Font may pose a great time consuming process
 // This is why we change fonts only at initializion
@@ -1044,6 +1058,15 @@ function uploadTestResults(){
   }
 }
 
+/*
+  Clear local storage data. We need the client to submit two times 
+  the profile's data. Once before Bronymity and after Bronymity.
+*/
+function clearStorage(){
+  localStorage.removeItem("amiunique");
+  localStorage.removeItem("browserprint");
+  localStorage.removeItem("panopticlick");
+}
 
 // The following listener might get called
 // before main_init is finished. Some errors might occur
@@ -1094,6 +1117,8 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
       localStorage["status"] = "deactivated";
     } else if (request.action == "upload-test-results") {
       uploadTestResults();
+    } else if (request.action == "clear-storage") {
+      clearStorage();
     } 
    
 });

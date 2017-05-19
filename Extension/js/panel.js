@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var enablePlugin = document.getElementById('activated');
     var disablePlugin = document.getElementById('deactivated');
     var uploadTestResults = document.getElementById('upload_test_results');
+    var clearStorage = document.getElementById('clear_storage');
 
 
     uploadProfile.addEventListener('click', function () {
@@ -51,6 +52,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     uploadTestResults.addEventListener('click', function (e) {
         chrome.runtime.sendMessage({action: "upload-test-results"});
+        window.close();         
+    });
+    clearStorage.addEventListener('click', function (e) {
+        chrome.runtime.sendMessage({action: "clear-storage"});
         window.close();         
     });
 });

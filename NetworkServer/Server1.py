@@ -38,6 +38,26 @@ def uploadprofile():
     return "Error"
 
 
+@app.route('/uploadTestResults', methods=['POST'])
+def uploadtestresults():
+  try:
+    data = {}
+    data['userID'] = str(request.form.get('userID'))
+    data['amiunique'] = str(request.form.get('amiunique'))
+    data['browserprint'] = str(request.form.get('browserprint'))
+    data['panopticlick'] = str(request.form.get('panopticlick'))
+    data['status'] = str(request.form.get('status'))
+
+    f = open('test_results', 'a')
+    f.write(str(json.dumps(data)))
+    f.write('\n')
+    f.close
+    return "OK"
+  except Exception as e:
+    print e
+    return "Error"
+
+
 @app.route('/retrieveprofile', methods=['POST'])
 def retrieveprofile():
   try:

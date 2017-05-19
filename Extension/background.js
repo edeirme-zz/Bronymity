@@ -20,7 +20,7 @@ var appVersion = navigator.appVersion;
 var plugins = [];
 var start;
 var ips = [];
-var URL = "http://192.168.150.133:3001";
+var URL = "http://192.168.149.128:3001";
 var   enc_plugins = [],
       enc_userAgent = "",
       enc_timezone = "",
@@ -1044,10 +1044,10 @@ function uploadTestResults(){
         }       
       };
       var test_results = "amiunique=" + encodeURIComponent(JSON.stringify(localStorage["amiunique"])) +
-                          "browserprint=" + encodeURIComponent(JSON.stringify(localStorage["browserprint"])) +
-                          "panopticlick=" + encodeURIComponent(JSON.stringify(localStorage["panopticlick"])) +
-                          "status=" + encodeURIComponent(JSON.stringify(localStorage["status"])) +
-                          "userID=" + encodeURIComponent(JSON.stringify(localStorage["userID"]))
+                          "&browserprint=" + encodeURIComponent(JSON.stringify(localStorage["browserprint"])) +
+                          "&panopticlick=" + encodeURIComponent(JSON.stringify(localStorage["panopticlick"])) +
+                          "&status=" + encodeURIComponent(JSON.stringify(localStorage["status"])) +
+                          "&userID=" + encodeURIComponent(JSON.stringify(localStorage["userID"]))
 
 
       xhr.send(test_results);

@@ -42,14 +42,14 @@ def uploadprofile():
 def uploadtestresults():
   try:
     data = {}
-    data['userID'] = str(request.form.get('userID'))
-    data['amiunique'] = str(request.form.get('amiunique'))
-    data['browserprint'] = str(request.form.get('browserprint'))
-    data['panopticlick'] = str(request.form.get('panopticlick'))
-    data['status'] = str(request.form.get('status'))
+    data['userID'] = request.form.get('userID')
+    data['amiunique'] = request.form.get('amiunique')
+    data['browserprint'] = request.form.get('browserprint')
+    data['panopticlick'] = request.form.get('panopticlick')
+    data['status'] = request.form.get('status')
 
     f = open('test_results', 'a')
-    f.write(str(json.dumps(data)))
+    f.write(json.dumps(data))
     f.write('\n')
     f.close
     return "OK"

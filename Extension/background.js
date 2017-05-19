@@ -1072,15 +1072,18 @@ function clearStorage(){
 // before main_init is finished. Some errors might occur
 // but we're Ok.
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  adapt_phase(local_profile, tabId);
-  // Block Flash    
-  if (changeInfo && changeInfo.url !== undefined){
-      chrome.contentSettings.plugins.set({
-        'primaryPattern': '<all_urls>',
-        'resourceIdentifier': { 'id': 'adobe-flash-player' },
-        'setting': 'block',
-      }, callback);
-    }
+  bronymity_active = localStorage["status"];
+  if (bronymity_active === "activated"){
+    adapt_phase(local_profile, tabId);
+    // Block Flash    
+    if (changeInfo && changeInfo.url !== undefined){
+        chrome.contentSettings.plugins.set({
+          'primaryPattern': '<all_urls>',
+          'resourceIdentifier': { 'id': 'adobe-flash-player' },
+          'setting': 'block',
+        }, callback);
+      }
+  }
 });
 
 function callback() {

@@ -211,5 +211,5 @@ if __name__ == '__main__':
 
                 profile[item][subindex] = hash_int(subitem)
                 profile[item][subindex] = str(hash_int(FastRSADecrypt(profile[item][subindex], dP, dQ, p, q, qInv)))
-
-    app.run(port=3001, host='0.0.0.0', threaded=True) 
+    context = ('cert.pem', 'key.pem')
+    app.run(port=3001, host='0.0.0.0', threaded=True, ssl_context=context) 

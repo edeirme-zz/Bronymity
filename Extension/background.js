@@ -20,7 +20,7 @@ var appVersion = navigator.appVersion;
 var plugins = [];
 var start;
 var ips = [];
-var URL = "http://192.168.149.128:3001";
+var URL = "https://192.168.149.128:3001";
 var   enc_plugins = [],
       enc_userAgent = "",
       enc_timezone = "",

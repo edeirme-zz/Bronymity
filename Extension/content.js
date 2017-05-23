@@ -76,7 +76,6 @@ function main(r, g, b, a, scriptId) {
     }
     function overrideDocumentProto(root) {
         function doOverrideDocumentProto(old, name) {
-                        console.log("tryinngg " + name);
             Object.defineProperty(root.prototype, name,
                 {
                     value: function () {

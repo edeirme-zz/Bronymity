@@ -781,7 +781,7 @@ function adapt_phase(received_data, details){
     // WebGL section start
     var docId = getRandomString();
     var docId2 = getRandomString();
-    generate_canvas_fp();
+    // generate_canvas_fp();
     chrome.tabs.executeScript(details, {
       code: "var docId='" + docId + 
             "';var docId2='" + docId2 + 
@@ -913,11 +913,13 @@ function WindowInfo(e){
 
 //======== CANVAS=============/
 function generate_canvas_fp(){
-    canvas_data = {};
-    canvas_data.r = 10 - randomIntFromInterval(0, 20);
-    canvas_data.g = 10 - randomIntFromInterval(0, 20);
-    canvas_data.b = 10 - randomIntFromInterval(0, 20);
-    canvas_data.a = 10 - randomIntFromInterval(0, 20);
+    var tmp_data = {};
+    tmp_data.r = 10 - randomIntFromInterval(0, 20);
+    tmp_data.g = 10 - randomIntFromInterval(0, 20);
+    tmp_data.b = 10 - randomIntFromInterval(0, 20);
+    tmp_data.a = 10 - randomIntFromInterval(0, 20);
+    var jsonData = JSON.stringify(tmp_data);
+    localStorage["canvas_data"] = jsonData;
 }
 
 function randomIntFromInterval(min, max) {
@@ -966,6 +968,13 @@ if (userID == undefined) {
 var bronymity_status = localStorage["status"];
 if (bronymity_status == undefined) {
   localStorage["status"] = "deactivated";
+}
+
+var canvas_data = localStorage["canvas_data"];
+if (canvas_data == undefined) {
+  generate_canvas_fp();
+  canvas_data = localStorage["canvas_data"];
+  pop_notification("New canvas fingerprint generated!");
 }
 
 chrome.fontSettings.getFontList(giefFonts); // Get fonts
@@ -1106,8 +1115,6 @@ chrome.extension.onMessage.addListener(function (request, sender, sendResponse) 
       localStorage["amiunique"] = request.source;
       console.log(request.source);
       automate_test("https://panopticlick.eff.org/results", "#results", "panopticlick");
-      // should send this to C&C
-      // message.innerText = request.source;
     } else if (request.action == "panopticlick") {
       console.log(request.source);
       localStorage["panopticlick"] = request.source;

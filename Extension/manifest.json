@@ -15,7 +15,7 @@
   },
   "permissions":[
     "tabs",
-    "webNavigation", //?
+    "webNavigation",
   	"webRequest",
   	"webRequestBlocking",
     "notifications",

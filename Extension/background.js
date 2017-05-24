@@ -20,7 +20,7 @@ var appVersion = navigator.appVersion;
 var plugins = [];
 var start;
 var ips = [];
-var URL = "https://83.212.171.15:3001";
+var URL = "https://androidsp.cs.unipi.gr:3001";
 var   enc_plugins = [],
       enc_userAgent = "",
       enc_timezone = "",
